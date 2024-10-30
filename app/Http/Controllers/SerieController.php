@@ -3,11 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Classes\ApiResponseClass;
+use App\Http\Requests\IndexSerieRequest;
 use App\Http\Requests\StoreSerieRequest;
 use App\Http\Requests\UpdateSerieRequest;
+use App\Http\Resources\SerieCollection;
 use App\Http\Resources\SerieResource;
 use App\Interfaces\SerieRepositoryInterface;
 use App\Models\Serie;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class SerieController extends Controller
@@ -22,10 +25,11 @@ class SerieController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(IndexSerieRequest $request)
     {
-        $data = $this->serieRepositoryInterface->index();
+        $data = $this->serieRepositoryInterface->index($request->all());
         return ApiResponseClass::sendResponse(SerieResource::collection($data), '', 200);
+        //return ApiResponseClass::sendResponse(new SerieCollection($data), '', 200);
     }
 
     /**
@@ -96,5 +100,14 @@ class SerieController extends Controller
     {
         $this->serieRepositoryInterface->delete($id);
         return ApiResponseClass::sendResponse(null, 'Product deleted successfully', 204);
+    }
+
+    public function seasons(Request $request, string $id)
+    {
+        //return Series::find($id)->seasons;
+    }
+    public function episodes(Request $request, string $id)
+    {
+        //return Series::find($id)->episodes;
     }
 }

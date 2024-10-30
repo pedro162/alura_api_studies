@@ -4,7 +4,7 @@ namespace App\Interfaces;
 
 interface SerieRepositoryInterface
 {
-    public function index();
+    public function index(array $filters = []);
     public function getById($id);
     public function store(array $data);
     public function update(array $data, $id);
