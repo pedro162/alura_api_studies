@@ -34,6 +34,8 @@ Route::post('/login', function (Request $request) {
         return response()->json('Unauthorized', JsonResponse::HTTP_UNAUTHORIZED);
 
     $user = Auth::user();
-    $token = $user->createToken('token');
+    //$user->tokens()->delete();//Revoke tokens
+    $token = $user->createToken('token', ['series:delete']);
+    //$token = $user->createToken('token', ['*']);//Default
     return response()->json($token->plainTextToken);
 });

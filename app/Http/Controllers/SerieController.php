@@ -10,6 +10,7 @@ use App\Http\Resources\SerieCollection;
 use App\Http\Resources\SerieResource;
 use App\Interfaces\SerieRepositoryInterface;
 use App\Models\Serie;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -25,8 +26,11 @@ class SerieController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(IndexSerieRequest $request)
+    public function index(IndexSerieRequest $request, Authenticatable $user)
     {
+        //dd($request->user());
+        //dd($user);
+        //dd($user->tokenCan('series:delete'));
         $data = $this->serieRepositoryInterface->index($request->all());
         return ApiResponseClass::sendResponse(SerieResource::collection($data), '', 200);
         //return ApiResponseClass::sendResponse(new SerieCollection($data), '', 200);
