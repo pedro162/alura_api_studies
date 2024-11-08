@@ -13,15 +13,12 @@ use App\Models\Serie;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Throwable;
 
 class SerieController extends Controller
 {
-    private SerieRepositoryInterface $serieRepositoryInterface;
 
-    public function __construct(SerieRepositoryInterface $serieRepositoryInterface)
-    {
-        $this->serieRepositoryInterface = $serieRepositoryInterface;
-    }
+    public function __construct(private SerieRepositoryInterface $serieRepositoryInterface) {}
 
     /**
      * Display a listing of the resource.
