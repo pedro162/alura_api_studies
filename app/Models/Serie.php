@@ -6,16 +6,26 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class Serie extends Model
 {
     use HasFactory;
+
     protected $fillable = [
         'name'
     ];
+
     protected $appends = [
         'links'
     ];
+
+    /**
+     * The relationships that should always be loaded.
+     *
+     * @var array
+     */
+    protected $with = [];
 
     public function seasons()
     {
@@ -52,5 +62,13 @@ class Serie extends Model
                 ],
             ]
         );
+    }
+
+    /**
+     * Get the parent of the activity feed record.
+     */
+    public function parentable(): MorphTo
+    {
+        return $this->morphTo();
     }
 }

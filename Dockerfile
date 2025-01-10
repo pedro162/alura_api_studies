@@ -46,6 +46,16 @@ RUN chmod -R 755 /var/www/html/alura_api_studies
 # Remover o arquivo apache2.pid caso ele exista (resolver problema do PID)
 RUN rm -f /var/run/apache2/apache2.pid
 
+# Atualize o sistema e instale curl (para adicionar Node.js)
+RUN apt-get update && apt-get install -y curl
+
+# Adicione o Node.js 18 (inclui o npm)
+RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
+    && apt-get install -y nodejs
+
+# Verifique as versões do Node.js e npm (opcional)
+RUN node --version && npm --version
+
 # Criar um usuário não-root para executar o processo
 RUN useradd -ms /bin/bash appuser && \
     chown -R appuser:appuser /var/www/html/alura_api_studies
