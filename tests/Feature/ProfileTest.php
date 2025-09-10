@@ -5,10 +5,21 @@ namespace Tests\Feature;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
+use Illuminate\Support\Facades\Gate;
 
 class ProfileTest extends TestCase
 {
     use RefreshDatabase;
+    //XDEBUG_MODE=coverage ./vendor/bin/pest --coverage
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        // Allow all Gate/Policy checks for these tests
+        Gate::before(function ($user, $ability) {
+            return true;
+        });
+    }
 
     public function test_profile_page_is_displayed(): void
     {

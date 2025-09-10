@@ -6,8 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\DestroyUserRequest;
 use App\Http\Requests\StoreLoginRequest;
 use App\Http\Requests\StoreUserRequest;
+use App\Models\User;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Database\Eloquent\Builder;
 
 class LoginController extends Controller
 {
@@ -16,7 +19,29 @@ class LoginController extends Controller
      */
     public function index()
     {
-        //
+        $user = Auth::user();
+        $userId = Auth::id();
+
+        if (Auth::check()) {
+            return to_route('seasons.episodes.index');
+        }
+
+        return view('login', [
+            'user' => $user,
+            'userId' => $userId,
+        ]);
+    }
+
+    public function logout(Request $request): RedirectResponse
+    {
+        $password = '';
+
+        Auth::logout();
+        Auth::logoutOtherDevices($password);
+
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        return redirect('/');
     }
 
     /**
@@ -70,5 +95,61 @@ class LoginController extends Controller
     {
         Auth::logout();
         return to_route('login');
+    }
+
+    public function authenticate(Request $request): RedirectResponse
+    {
+        $crendentials = $request->validate([
+            'email' => 'required|email',
+            'password' => 'required'
+        ]);
+
+        if (Auth::attempt([...$crendentials, 'is_active' => 1])) {
+            $request->session()->regenerate();
+            return redirect()->intended('seasons.episodes.index');
+        }
+
+        if (Auth::attempt([...$crendentials, 'is_active' => 1, fn(Builder $query) => $query->has('activeSubscription')])) {
+            $request->session()->regenerate();
+            return redirect()->intended('seasons.episodes.index');
+        }
+
+        if (Auth::attempt($crendentials)) {
+            $request->session()->regenerate();
+            return redirect()->intended('seasons.episodes.index');
+        }
+
+        if (Auth::attemptWhen($crendentials, function (User $user) {
+            return $user->isNotBanned();
+        })) {
+            $request->session()->regenerate();
+            return redirect()->intended('seasons.episodes.index');
+        }
+
+        if (Auth::guard('admin')->attempt($crendentials)) {
+            $request->session()->regenerate();
+            return redirect()->intended('admin.dashboard');
+        }
+
+        $remember = true;
+
+        if (Auth::attempt($crendentials, $remember)) {
+            //
+        }
+
+        if (Auth::viaRemember()) {
+            //
+        }
+
+        $user = User::first();
+
+        Auth::login($user, $remember);
+
+        Auth::loginUsingId($user->id, $remember);
+        Auth::loginUsingId($user->id, remember: true);
+
+        return back()->withErrors([
+            'email' => 'The provided credentials do not match our records.',
+        ]);
     }
 }

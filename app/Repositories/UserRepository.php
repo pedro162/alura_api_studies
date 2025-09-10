@@ -38,4 +38,13 @@ class UserRepository
     {
         User::destroy($id);
     }
+
+    public function test()
+    {
+        User::all()->reject(function (User $user) {
+            return $user->emal != '';
+        })->map(function (User $user) {
+            return $user->name;
+        });
+    }
 }

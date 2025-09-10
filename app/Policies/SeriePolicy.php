@@ -13,7 +13,7 @@ class SeriePolicy
      */
     public function viewAny(User $user): bool
     {
-        //
+        return false;
     }
 
     /**
@@ -21,7 +21,7 @@ class SeriePolicy
      */
     public function view(User $user, Serie $serie): bool
     {
-        //
+        return $user->id === $serie->id;
     }
 
     /**
@@ -29,7 +29,7 @@ class SeriePolicy
      */
     public function create(User $user): bool
     {
-        //
+        return true;
     }
 
     /**
@@ -37,7 +37,51 @@ class SeriePolicy
      */
     public function update(User $user, Serie $serie): bool
     {
-        //
+        return $user->id === $serie->id;
+    }
+
+    /**
+     * Determine whether the user can update the model.
+     */
+    public function updateResponse(User $user, Serie $serie): Response
+    {
+        return $user->id === $serie->id
+            ? Response::allow()
+            : Response::deny('You do not own this serie.');
+    }
+
+    /**
+     * Determine whether the user can update the model.
+     */
+    public function updateResponse2(User $user, Serie $serie): Response
+    {
+        /* return $user->id === $serie->id
+            ? Response::allow()
+            : Response::denyWithStatus(404); */
+
+        return $user->id === $serie->id
+            ? Response::allow()
+            : Response::denyAsNotFound();
+    }
+
+    /**
+     * Determine whether the user can update the model.
+     */
+    public function updateResponse3(?User $user, Serie $serie): bool
+    {
+        return $user?->id === $serie->id;;
+    }
+
+    /**
+     * Determine whether the user can update the model.
+     */
+    public function updateResponse4(?User $user, Serie $serie): bool|null
+    {
+        if ($user->id == $serie->id) {
+            return true;
+        }
+
+        return null;
     }
 
     /**
@@ -45,7 +89,7 @@ class SeriePolicy
      */
     public function delete(User $user, Serie $serie): bool
     {
-        //
+        return $user->id === $serie->id;
     }
 
     /**
@@ -53,7 +97,7 @@ class SeriePolicy
      */
     public function restore(User $user, Serie $serie): bool
     {
-        //
+        return $user->id === $serie->id;
     }
 
     /**
@@ -61,6 +105,6 @@ class SeriePolicy
      */
     public function forceDelete(User $user, Serie $serie): bool
     {
-        //
+        return false;
     }
 }

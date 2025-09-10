@@ -3,16 +3,21 @@
 namespace App\Http\Controllers;
 
 use App\Classes\ApiResponseClass;
+use App\Events\SeriesCreated as EventsSeriesCreated;
+use App\Events\SeriesDeleted;
 use App\Http\Requests\IndexSerieRequest;
 use App\Http\Requests\StoreSerieRequest;
 use App\Http\Requests\UpdateSerieRequest;
 use App\Http\Resources\SerieCollection;
 use App\Http\Resources\SerieResource;
 use App\Interfaces\SerieRepositoryInterface;
+use App\Mail\SeriesCreated;
 use App\Models\Serie;
+use App\Models\User;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Throwable;
 
 class SerieController extends Controller
@@ -51,8 +56,23 @@ class SerieController extends Controller
         ];
         DB::beginTransaction();
         try {
+            $coverPath = $request->file('cover')?->store('series_cover', 'public');
+            $details['cover'] = $coverPath;
             $serie = $this->serieRepositoryInterface->store($details);
             DB::commit();
+
+
+            //Mail::to($user)->queue(new \App\Mail\NewSerieMail($serie));
+            //$when  =now()->addSeconds(10);
+            //Mail::to($user)->later($when, new \App\Mail\NewSerieMail($serie));
+            EventsSeriesCreated::dispatch(
+                $serie->name,
+                $serie->id,
+                $serie?->seasons?->count() ?? 1,
+                $serie->seasons->first()?->episodes->count() ?? 1
+            );
+
+            //event(new EventsSeriesCreated());
             return ApiResponseClass::sendResponse(new SerieResource($serie), 'Serie created successful', 201);
         } catch (\Exception $ex) {
             return ApiResponseClass::rollback($ex);
@@ -99,16 +119,28 @@ class SerieController extends Controller
      */
     public function destroy(string $id)
     {
-        $this->serieRepositoryInterface->delete($id);
-        return ApiResponseClass::sendResponse(null, 'Product deleted successfully', 204);
+        DB::beginTransaction();
+        try {
+            $serie = $this->serieRepositoryInterface->getById($id);
+            $this->serieRepositoryInterface->delete($id);
+
+            SeriesDeleted::dispatch(
+                $serie->id,
+                $serie?->cover ?? ''
+            );
+            return ApiResponseClass::sendResponse(null, 'Product deleted successfully', 204);
+        } catch (\Exception $ex) {
+            return ApiResponseClass::rollback($ex);
+        }
     }
 
     public function seasons(Request $request, string $id)
     {
-        //return Series::find($id)->seasons;
+        return Serie::find($id)?->seasons ?? [];
     }
+
     public function episodes(Request $request, string $id)
     {
-        //return Series::find($id)->episodes;
+        return Serie::find($id)->episodes;
     }
 }

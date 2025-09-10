@@ -24,7 +24,8 @@ class StoreSerieRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required'
+            'name' => 'required',
+            'cover' => 'sometimes|file|mimes:jpg,jpeg,png,gif|max:2048',
         ];
     }
 

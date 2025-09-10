@@ -20,6 +20,10 @@ RUN apt-get update && apt-get install -y \
     curl \
     sudo
 
+# Instalar o Xdebug
+RUN pecl install xdebug \
+    && docker-php-ext-enable xdebug
+
 # Instale as extensões do PHP necessárias
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install gd pdo pdo_mysql
@@ -35,6 +39,8 @@ WORKDIR /var/www/html/alura_api_studies
 
 # Verifica se o arquivo composer.json existe, se não, copia um arquivo de exemplo
 COPY composer.json /var/www/html/alura_api_studies/composer.json
+
+COPY docker/php/docker-php-ext-xdebug.ini /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
 
 # Instale as dependências do Composer
 RUN composer install --no-interaction || true

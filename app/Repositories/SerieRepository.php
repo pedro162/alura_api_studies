@@ -40,4 +40,17 @@ class SerieRepository implements SerieRepositoryInterface
     {
         Serie::destroy($id);
     }
+
+    public function test()
+    {
+        /* return Serie::all()->reject(function (Serie $serie) {
+            return $serie->id < 5;
+        })->map(function (Serie $serie) {
+            return $serie->id;
+        }); */
+
+        //return Serie::all()->append('team');
+        //return Serie::all()->append(['team', 'team_id']);
+        return Serie::all()->contains(2);
+    }
 }

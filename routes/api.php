@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Hash;
 use \Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\Api\Course01\SerieController as SerieControllerStudies;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -26,6 +27,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('/episodes/{episode}', [EpisodeController::class, 'watched']);
 });
 
+Route::get('/collections', [SerieControllerStudies::class, 'collections'])->name('series.collections');
+
 Route::post('/login', function (Request $request) {
     $credentials = $request->only(['email', 'password']);
     $authorized = Auth::attempt($credentials);
@@ -35,7 +38,7 @@ Route::post('/login', function (Request $request) {
 
     $user = Auth::user();
     //$user->tokens()->delete();//Revoke tokens
-    $token = $user->createToken('token', ['series:delete']);
-    //$token = $user->createToken('token', ['*']);//Default
+    //$token = $user->createToken('token', ['series:delete']);
+    $token = $user->createToken('token', ['*']); //Default
     return response()->json($token->plainTextToken);
 });

@@ -13,7 +13,8 @@ class Serie extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name'
+        'name',
+        'cover'
     ];
 
     protected $appends = [
