@@ -5,6 +5,10 @@ function sum($n1, $n2)
     return $n1 + $n2;
 }
 
+beforeEach(function () {
+    $person = new \stdClass();
+});
+
 test('sum', function () {
     $result = sum(1, 2);
 
@@ -38,5 +42,12 @@ it('throws no exception', function () {
     $result = 2 + 2;
 })->throwsNoExceptions();
 
+it('needs to be true', function () {
+    //Arrange
+    //Act
+    //Assert
+    expect(true)->toBeTrue();
+});
 
 //XDEBUG_MODE=coverage ./vendor/bin/pest --coverage
+//XDEBUG_MODE=coverage vendor/bin/infection --test-framework=pest
